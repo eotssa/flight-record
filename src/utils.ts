@@ -1,4 +1,4 @@
-import { Weather, NewDiaryEntry } from "./types";
+import { Weather, Visibility, NewDiaryEntry } from "./types";
 
 // receives the request body as a parameter and returns a properly-typed NewDiaryEntry objec
 
@@ -40,16 +40,42 @@ const parseWeather = (weather: unknown): Weather => {
   return weather;
 };
 
-const toNewDiaryEntry = (object: unknown): NewDiaryEntry => {
-  console.log(object); // now object is no longer unused
-  const newEntry: NewDiaryEntry = {
-    weather: "cloudy", // fake the return value
-    visibility: "great",
-    date: "2022-1-1",
-    comment: "fake news",
-  };
+const isVisibility = (param: string): param is Visibility => {
+  return Object.values(Visibility)
+    .map((v) => v.toString())
+    .includes(param);
+};
 
-  return newEntry;
+const parseVisibility = (visibility: unknown): Visibility => {
+  if (!visibility || !isString(visibility) || !isVisibility(visibility)) {
+    throw new Error("Incorrect or missing visibility: " + visibility);
+  }
+  return visibility;
+};
+
+//  operator in actually now guarantees that the fields indeed exist in the object
+const toNewDiaryEntry = (object: unknown): NewDiaryEntry => {
+  if (!object || typeof object !== "object") {
+    throw new Error("Incorrect or missing data");
+  }
+
+  if (
+    "comment" in object &&
+    "date" in object &&
+    "weather" in object &&
+    "visibility" in object
+  ) {
+    const newEntry: NewDiaryEntry = {
+      weather: parseWeather(object.weather),
+      visibility: parseVisibility(object.visibility),
+      date: parseDate(object.date),
+      comment: parseComment(object.comment),
+    };
+
+    return newEntry;
+  }
+
+  throw new Error("Incorrect data: some fields are missing");
 };
 
 export default toNewDiaryEntry;
