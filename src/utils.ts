@@ -54,6 +54,7 @@ const parseVisibility = (visibility: unknown): Visibility => {
 };
 
 //  operator in actually now guarantees that the fields indeed exist in the object
+//  therefore can remove (!visibility, etc.)
 const toNewDiaryEntry = (object: unknown): NewDiaryEntry => {
   if (!object || typeof object !== "object") {
     throw new Error("Incorrect or missing data");
